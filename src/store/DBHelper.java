@@ -1,8 +1,11 @@
 package store;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
-import exception.Project1Exception;
+import exception.DatabaseHelperException;
 /**
  * This is a database helper for getting connection from database. 
  *  Usage
@@ -13,7 +16,7 @@ import exception.Project1Exception;
  */
 public class DBHelper {
 	private static DBHelper helperInstance;
-	private final String url = "";
+	private final String url = "jdbc:mysql://localhost/test?maxAllowedPacket=1073741824";
 	private final String user = "";
 	private final String password = "";
 
@@ -21,12 +24,12 @@ public class DBHelper {
 	private DBHelper() {
 		try {
 			DriverManager.registerDriver(
-					new oracle.jdbc.driver.OracleDriver()
+					//new oracle.jdbc.driver.OracleDriver()
 					//or new org.postgresql.Driver()
-					//or new com.mysql.jdbc.Driver()	
+					new com.mysql.jdbc.Driver()	
 			);
 		} catch (Exception cause) {
-			throw new Project1Exception(cause.getMessage(), cause);
+			throw new DatabaseHelperException(cause.getMessage(), cause);
 		}
 	}
 
@@ -35,7 +38,7 @@ public class DBHelper {
 			try {
 				helperInstance = new DBHelper();
 			} catch (Exception cause) {
-				throw new Project1Exception(cause.getMessage(), cause);
+				throw new DatabaseHelperException(cause.getMessage(), cause);
 			}
 		}
 		return helperInstance;
@@ -47,7 +50,7 @@ public class DBHelper {
 		try {
 			conn = DriverManager.getConnection(url, user, password);
 		} catch (Exception cause) {
-			throw new Project1Exception(cause.getMessage(), cause);
+			throw new DatabaseHelperException(cause.getMessage(), cause);
 		}
 
 		return conn;
@@ -62,8 +65,6 @@ public class DBHelper {
 				DBHelper.close((Statement) arg);
 			} else if (arg instanceof ResultSet) {
 				DBHelper.close((ResultSet) arg);
-			} else {
-				throw new Project1Exception("Unsupported type");
 			}
 		}
 	}
@@ -72,7 +73,7 @@ public class DBHelper {
 		try {
 			connection.close();
 		} catch (Exception cause) {
-			throw new Project1Exception(cause.getMessage(), cause);
+			throw new DatabaseHelperException(cause.getMessage(), cause);
 		}
 	}
 
@@ -80,7 +81,7 @@ public class DBHelper {
 		try {
 			statement.close();
 		} catch (Exception cause) {
-			throw new Project1Exception(cause.getMessage(), cause);
+			throw new DatabaseHelperException(cause.getMessage(), cause);
 		}
 	}
 
@@ -88,31 +89,7 @@ public class DBHelper {
 		try {
 			resultset.close();
 		} catch (Exception cause) {
-			throw new Project1Exception(cause.getMessage(), cause);
+			throw new DatabaseHelperException(cause.getMessage(), cause);
 		}
 	}
-	
-	public static void main(String[] args) {
-		
-		/**
-		 * This is an example for querying
-		 */
-		Connection conn = null;
-		Statement statement = null;
-		ResultSet resultSet = null;
-		try {
-			DBHelper helper = DBHelper.getInstance();
-			conn = helper.getConnection();
-			statement = conn.createStatement();
-			resultSet = statement.executeQuery("SELECT * FROM TableName");
-			while (resultSet.next()) {
-				System.out.println(resultSet.getString(1));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			DBHelper.close(conn, statement, resultSet);
-		}
-	}
-
 }

@@ -1,5 +1,7 @@
 package store;
 
+import java.io.Closeable;
+
 /**
  * Requirement: http://cs542.wpi.datathinks.org/proj
  * 
@@ -7,14 +9,17 @@ package store;
  * has just three interfaces:
  *
  */
-public interface IValueStore 
+public interface IValueStore extends Closeable
 {
 	/* Store data under the given key*/
-	void Put(int key, byte[] data);
+	void put(int key, byte[] data);
 
 	/* Retrieves the data */
-	byte[] Get(int key);
+	byte[] get(int key);
 
 	/* Deletes the key */
-	void Remove(int key);
+	void remove(int key);
+	
+	/* Close database connection in value store */
+	void close();
 }
