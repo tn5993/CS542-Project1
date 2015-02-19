@@ -7,7 +7,7 @@
 <h4>Introduction</h4>
 <p>Following intructions at http://cs542.wpi.datathinks.org/proj, this project aims to provide a better understanding for Isolation level of Database Management System (DBMS). The technologies that we employed was MySQL database and Java.
 <h4> UML Diagram </h4>
-<p> Here is the UML Diagram that we followed to implement our class </p>
+<p> Here is the UML Diagram that we followed to implement our classes. </p>
 <div style="text-align:center"><img src = "https://cloud.githubusercontent.com/assets/8074347/6260952/f61a0006-b7b4-11e4-93d5-ca956515f45c.png" width="60%"/></div>
 <h4></h4>
 <h4>Using MySQL to import large byte[] array</h4>
@@ -42,7 +42,7 @@ We used threads as transactions to access the database at SERIALIZABLE isolation
 </p>
 <blockquote>
 Transaction 1 get big data at key<br/>
-Transaction 2 update row at key<br/>
+Transaction 2 update row at key with another big data<br/>
 Transaction 3 get big data at key (scheduled milliseconds or seconds later)<br/>
 </blockquote>
 
