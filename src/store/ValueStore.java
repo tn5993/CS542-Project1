@@ -8,7 +8,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import exception.ValueStoreException;
-
+/**
+ * 
+ * An implementation of ValueStore
+ *
+ */
 public class ValueStore implements IValueStore {
 	private Connection connection;
 
@@ -24,8 +28,7 @@ public class ValueStore implements IValueStore {
 			connection.setAutoCommit(false);
 
 			// Set transaction isolation level as SERIALIZABLE
-			connection
-					.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+			connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 		} catch (SQLException e) {
 			throw new ValueStoreException(e.getMessage(), e);
 		}
@@ -34,14 +37,12 @@ public class ValueStore implements IValueStore {
 	// add a new row to database
 	@Override
 	public void put(int key, byte[] data) {
-		String PUT = "INSERT INTO store(k, v) VALUES (?, ?) ON DUPLICATE KEY UPDATE k = ?, v = ?";
+		String PUT = "INSERT INTO store(k, v) VALUES (?, ?) ON DUPLICATE KEY UPDATE v = values(v);";
 		PreparedStatement ps = null;
 		try {
 			ps = connection.prepareStatement(PUT);
 			ps.setInt(1, key);
 			ps.setBytes(2, data);//long blob
-			ps.setInt(3, key);
-			ps.setBytes(4, data);//long blob
 			ps.executeUpdate();
 			connection.commit();
 		} catch (SQLException e) {
@@ -98,22 +99,4 @@ public class ValueStore implements IValueStore {
 	public void close() {
 		DBHelper.close(this.connection);
 	}
-
-	public static void main(String[] args) {
-		ValueStore impl = new ValueStore();
-		byte[] data = "THIS IS A TEST1".getBytes();
-		impl.put(1, data);
-		impl.put(2, data);
-
-		byte[] result = impl.get(1);
-		byte[] result2 = impl.get(1);
-		System.out.println("r: " + new String(result));
-		System.out.println("r: " + new String(result2));
-
-		impl.remove(1);
-		impl.remove(2);
-		impl.close(); // Remember to close the database
-		System.exit(0);
-	}
-
 }

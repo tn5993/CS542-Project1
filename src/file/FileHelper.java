@@ -5,7 +5,6 @@ import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Random;
 
 public class FileHelper {
 	static public void createBigFile() {

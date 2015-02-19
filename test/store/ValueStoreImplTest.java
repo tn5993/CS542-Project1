@@ -1,56 +1,35 @@
 package store;
 
-import static org.junit.Assert.assertEquals;
+import junit.framework.TestCase;
+import net.sourceforge.groboutils.junit.v1.MultiThreadedTestRunner;
+import net.sourceforge.groboutils.junit.v1.TestRunnable;
 
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
-import transactions.Transaction;
-
-public class ValueStoreImplTest {
-	private IValueStore valueStore;
+public class ValueStoreImplTest extends TestCase {
 	private static byte[] bigdata;
 	private static byte[] bigdata2;
 	private final static Integer fileSize = 134217728;
 	private static final Integer fileSize2 = 6710886;
 
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-		bigdata = RandomUtils.nextBytes(fileSize);// new byte[fileSize];									// //268435456 //256MB
-		bigdata2 = RandomUtils.nextBytes(fileSize2);// new byte[fileSize2];
+	/**
+	 * Standard main() and suite() methods
+	 */
+	public static void main(String[] args) {
+		String[] name = { ValueStoreImplTest.class.getName() };
+
+		junit.textui.TestRunner.main(name);
 	}
 
-	@Before
-	public void setUp() throws Exception {
-	}
-
-	@After
-	public void tearDown() throws Exception {
-	}
-
-	//@Test
-	public void putGetAndRemoveBigData() {
-		IValueStore valueStore = createValueStore();
-		valueStore.put(1, bigdata);
-		byte[] retrieveData = valueStore.get(1);
-		assertEquals(retrieveData.length, 134217728);
-		valueStore.remove(1);
-		retrieveData = valueStore.get(1);
-		assertEquals(1, retrieveData.length); // has nothing
-		valueStore.close();
-	}
-
-	@Test
-	public void testTransactionGetWhenTryingToRemove() {
+	public void testTransactionGetWhenTryingToRemove() throws Throwable {
+		bigdata = RandomUtils.nextBytes(fileSize);
+		bigdata2 = RandomUtils.nextBytes(fileSize2);
 		IValueStore valueStore = createValueStore();
 		valueStore.put(1, bigdata);
 		valueStore.close();
-		
-		Transaction transaction1 = new Transaction() {
-			public void run() {
+
+		TestRunnable tr1 = new TestRunnable() {
+			public void runTest() {
 				IValueStore valueStore = new ValueStore();
 				valueStore.remove(1);
 				System.out.println("Transaction 1 remove ");
@@ -58,8 +37,8 @@ public class ValueStoreImplTest {
 			}
 		};
 
-		Transaction transaction2 = new Transaction() {
-			public void run() {
+		TestRunnable tr2 = new TestRunnable() {
+			public void runTest() {
 
 				IValueStore valueStore = new ValueStore();
 				byte[] result = valueStore.get(1);
@@ -69,8 +48,8 @@ public class ValueStoreImplTest {
 			}
 		};
 
-		Transaction transaction3 = new Transaction() {
-			public void run() {
+		TestRunnable tr3 = new TestRunnable() {
+			public void runTest() {
 				try {
 					IValueStore valueStore = new ValueStore();
 					byte[] result = valueStore.get(1);
@@ -82,31 +61,29 @@ public class ValueStoreImplTest {
 				}
 			}
 		};
-
-		transaction1.start();
-		transaction2.start();
-		transaction3.start();
+		TestRunnable[] trs = { tr1, tr2, tr3 };
+		MultiThreadedTestRunner mttr = new MultiThreadedTestRunner(trs);
+		mttr.runTestRunnables();
 	}
-	
-	//@Test
-	public void testTransactionUpdateAndGet() {
+
+	public void testTransactionUpdateAndGet() throws Throwable {
+		bigdata = RandomUtils.nextBytes(fileSize);
+		bigdata2 = RandomUtils.nextBytes(fileSize2);
+		IValueStore valueStore = createValueStore();
+		valueStore.put(1, bigdata);
+		valueStore.close();
 		
-		Transaction transaction1 = new Transaction() {
-			public void run() {
+		TestRunnable tr1 = new TestRunnable() {
+			public void runTest() {
 				IValueStore valueStore = new ValueStore();
 				byte[] result = valueStore.get(1);
-				try {
-					Thread.sleep(4000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
 				System.out.println("Transaction 1 read " + result.length);
 				valueStore.close();
 			}
 		};
 
-		Transaction transaction2 = new Transaction() {
-			public void run() {
+		TestRunnable tr2 = new TestRunnable() {
+			public void runTest() {
 				IValueStore valueStore = new ValueStore();
 				valueStore.put(1, bigdata2);
 				System.out.println("Transaction 2 put " + bigdata2.length);
@@ -114,13 +91,14 @@ public class ValueStoreImplTest {
 			}
 		};
 
-		Transaction transaction3 = new Transaction() {
-			public void run() {
+		TestRunnable tr3 = new TestRunnable() {
+			public void runTest() {
 				IValueStore valueStore = new ValueStore();
 				byte[] result = valueStore.get(1);
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(2000);
 				} catch (InterruptedException e) {
+
 					e.printStackTrace();
 				}
 				System.out.println("Transaction 3 read " + result.length);
@@ -128,9 +106,24 @@ public class ValueStoreImplTest {
 			}
 		};
 		
-		transaction1.start();
-		transaction2.start();
-		transaction3.start();
+		TestRunnable tr4 = new TestRunnable() {
+			public void runTest() {
+				IValueStore valueStore = new ValueStore();
+				byte[] result = valueStore.get(1);
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+
+					e.printStackTrace();
+				}
+				System.out.println("Transaction 4 read " + result.length);
+				valueStore.close();
+			}
+		};
+
+		TestRunnable[] trs = { tr1, tr2, tr3, tr4 };
+		MultiThreadedTestRunner mttr = new MultiThreadedTestRunner(trs);
+		mttr.runTestRunnables();
 	}
 
 	public IValueStore createValueStore() {
