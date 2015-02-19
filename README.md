@@ -1,2 +1,10 @@
-# CS542-Project1
-Project 1 for Database Management System class
+# 
+<p>Cory Hayward, Thinh Nguyen, He Xuebin</p>
+<p>Project 1 for Database Management System class</p>
+<p>Professor Singh</p>
+<p>February 18, 2015</p>
+
+<h4>Introduction</h4>
+<p>Following intructions at http://cs542.wpi.datathinks.org/proj, this project aims to provide a better understanding for Isolation level of Database Management System (DBMS). The technologies that we employed was MySQL database and Java.
+<h4> UML Diagram </h4>
+  
